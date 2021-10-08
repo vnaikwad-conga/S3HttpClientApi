@@ -27,13 +27,13 @@ We also check with S3 logs and found that it will send response in 20ms to 80ms 
 * Please find complete log in log folder.
 
     1. Result in 53ms - With socket connection and HttpHandShake.
-    ![](log/HttpLogs_53ms.jpg)
+    ![Alt Log](Log/HttpLogs_53ms.jpg)
 
     2. Result in 20ms - Reuse socket connection
-    ![](log/HttpLogs_20ms.jpg)
+    ![Alt Log](Log/HttpLogs_20ms.jpg)
 
     3. Result in 108ms - With socket connection and HttpHandShake, S3 take time to respond.
-    ![](log/HttpLogs_108ms.jpg)
+    ![Alt Log](Log/HttpLogs_108ms.jpg)
 
 ## Conclusion
 * From image 1,2 and 3
