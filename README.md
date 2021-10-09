@@ -1,30 +1,30 @@
 # S3HttpClientApi
 
 ## Isssue : S3 Response time is higher.
-We created application which will retrieve S3 file parallelly from S3 bucket. While performance testing we found below for single file fetch.
-* When we call API frequntly in loop (without delay) it will return result in 20-30ms.
+We created application which will retrieve S3 file parallelly from S3 bucket. While performance testing, we found below for single file fetch.
+* When we call API frequntly in loop (without delay), it will return result in 20-30ms.
     * We obvserve that when it return response in 20-30ms HttpSocket is open.
-    * Request skip DNS lookup and socket handshaking step.
+    * Request skip DNS lookup and socket handshaking steps.
      
-* When we call API randomly (without loop) within 10 seconds result will be either of below.
+* When we call API randomly (without loop) within 10 seconds, result will be either of below
     1. 30ms-80ms mostly.
     1. 100+ms sometimes
     
-* When we call API with interval of more then 10-20 seconds it will take 100ms to 200ms.
+* When we call API with interval of more then 10-20 seconds S3 will take 100ms to 200ms to send response back.
 
-We also check with S3 logs and found that it will send response in 20ms to 80ms but in actual scenario it take time. Please check image for more information.
+We also check with S3 logs and found that it send response in 20ms to 80ms but in actual scenario it take time. Please check image/logs for more information.
 
 ## We try below solutions but not found any improvement
 
     1. S3 Client with standard configuration.
-    2. Implement DotNet HttpCLient Factory and set it in S3 configuration.
+    2. Implement DotNet HttpClient Factory and set it in S3 configuration.
     3. Implement Custom HttpClient Factory and set it in S3 configuration.
 
 * Please check code for more information. Search for Case-1, Case-2 and Case-3 for above 3 solution.
 
 ## Logs
-* We added http HttpEventListener to check timing of each and every activity of http call.
-* Please find complete log in log folder.
+* We added HttpEventListener to check timing of each and every activity of http call.
+* Please find complete logs in log folder.
 
     1. Result in 53ms - With socket connection and HttpHandShake.
     ![Alt Log](Log/HttpLogs_53ms.jpg)
@@ -48,7 +48,7 @@ We also check with S3 logs and found that it will send response in 20ms to 80ms 
 * Application : .Net Core 5
 * File Size : 345 Byte
 * S3 Bucket and EC2 instance are in same region
-* Created VPC betwneen S3 Bucket and EC2 instnace
+* Created VPC between S3 Bucket and EC2 instnace
 
 ## Expected Behaviour
 * S3 SDK have to manage socket connection and reuse it so that it will return data withing 20-30ms.
@@ -57,4 +57,3 @@ We also check with S3 logs and found that it will send response in 20ms to 80ms 
 ## Current Behaviour
 * S3 SDK not mangage HttpClient properly, it close socket connection and not reuse. For each request it perform DNS lookup and Http Handshaking. 
 * S3 Server take 100+ms for response.
-
