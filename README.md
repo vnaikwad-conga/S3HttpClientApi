@@ -19,7 +19,7 @@ Please check image/logs for more information.
 We also check with S3 logs and found that it send response in 20ms to 80ms but in actual scenario it take time. 
 
 
-Http Log | S3
+Http Logs (Time in ms) | S3 Logs (Time in ms)
 :--------:|:----:
 113|72
 102|88
@@ -27,7 +27,6 @@ Http Log | S3
 123|67
 49|37
 23|19
-|||
 
 Please check Log\S3AndHttpLog for log files.
 
