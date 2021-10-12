@@ -12,7 +12,24 @@ We created application which will retrieve S3 file parallelly from S3 bucket. Wh
     
 * When we call API with interval of more then 10-20 seconds S3 will take 100ms to 200ms to send response back.
 
-We also check with S3 logs and found that it send response in 20ms to 80ms but in actual scenario it take time. Please check image/logs for more information.
+Please check image/logs for more information.
+
+## HttpClinet VS S3 Logs
+
+We also check with S3 logs and found that it send response in 20ms to 80ms but in actual scenario it take time. 
+
+
+Http Log | S3
+:--------:|:----:
+113|72
+102|88
+53|41
+123|67
+49|37
+23|19
+|||
+
+Please check Log\S3AndHttpLog for log files.
 
 ## We try below solutions but not found any improvement
 

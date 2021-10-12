@@ -1,0 +1,258 @@
+----------------------------------------
+/var/log/eb-engine.log
+----------------------------------------
+2021/10/08 18:20:37.788515 [INFO] Running command /bin/sh -c systemctl reset-failed
+2021/10/08 18:20:37.794729 [INFO] Register application processes...
+2021/10/08 18:20:37.794741 [INFO] Registering the proc: web
+
+2021/10/08 18:20:37.794753 [INFO] Running command /bin/sh -c systemctl show -p PartOf web.service
+2021/10/08 18:20:37.802510 [INFO] Running command /bin/sh -c systemctl daemon-reload
+2021/10/08 18:20:37.893345 [INFO] Running command /bin/sh -c systemctl reset-failed
+2021/10/08 18:20:37.897661 [INFO] Running command /bin/sh -c systemctl is-enabled eb-app.target
+2021/10/08 18:20:37.902255 [INFO] Running command /bin/sh -c systemctl enable eb-app.target
+2021/10/08 18:20:37.971800 [INFO] Running command /bin/sh -c systemctl start eb-app.target
+2021/10/08 18:20:37.977324 [INFO] Running command /bin/sh -c systemctl enable web.service
+2021/10/08 18:20:38.057107 [INFO] Running command /bin/sh -c systemctl show -p PartOf web.service
+2021/10/08 18:20:38.063644 [INFO] Running command /bin/sh -c systemctl is-active web.service
+2021/10/08 18:20:38.067924 [INFO] Running command /bin/sh -c systemctl start web.service
+2021/10/08 18:20:38.082332 [INFO] Executing instruction: start X-Ray
+2021/10/08 18:20:38.082354 [INFO] X-Ray is not enabled.
+2021/10/08 18:20:38.082360 [INFO] Executing instruction: FlipProxyForDotNetCore
+2021/10/08 18:20:38.082364 [INFO] cleaning beanstalk iptables rules...
+2021/10/08 18:20:38.082389 [INFO] Running command /bin/sh -c iptables-save | grep -v added_by_elasticbeanstalk | iptables-restore
+2021/10/08 18:20:38.105562 [INFO] proxy server is none, deregister proxy nginx...
+2021/10/08 18:20:38.105598 [INFO] Running command /bin/sh -c systemctl show -p PartOf nginx.service
+2021/10/08 18:20:38.125291 [WARN] deregisterProcess Warning: process nginx is not registered, skipping...
+
+2021/10/08 18:20:38.125316 [INFO] setting up beanstalk iptables rules...
+2021/10/08 18:20:38.125347 [INFO] Running command /bin/sh -c iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 5000 -m comment --comment added_by_elasticbeanstalk
+2021/10/08 18:20:38.217349 [INFO] Running command /bin/sh -c iptables -A OUTPUT -t nat -o lo -p tcp --dport 80 -j REDIRECT --to-port 5000 -m comment --comment added_by_elasticbeanstalk
+2021/10/08 18:20:38.220605 [INFO] saving iptable rules config..
+2021/10/08 18:20:38.220620 [INFO] Running command /bin/sh -c service iptables save
+2021/10/08 18:20:38.255760 [INFO] iptables: Saving firewall rules to /etc/sysconfig/iptables: [  OK  ]
+
+2021/10/08 18:20:38.255784 [INFO] Executing instruction: configureSqsd
+2021/10/08 18:20:38.255789 [INFO] This is a web server environment instance, skip configure sqsd daemon ...
+2021/10/08 18:20:38.255794 [INFO] Executing instruction: startSqsd
+2021/10/08 18:20:38.255797 [INFO] This is a web server environment instance, skip start sqsd daemon ...
+2021/10/08 18:20:38.255802 [INFO] Executing instruction: Track pids in healthd
+2021/10/08 18:20:38.255806 [INFO] This is basic health env, skipping tracking pid in healthd...
+2021/10/08 18:20:38.255810 [INFO] Executing instruction: RunAppDeployPostDeployHooks
+2021/10/08 18:20:38.255825 [INFO] The dir .platform/hooks/postdeploy/ does not exist in the application. Skipping this step...
+2021/10/08 18:20:38.255829 [INFO] Executing cleanup logic
+2021/10/08 18:20:38.255976 [INFO] CommandService Response: {"status":"SUCCESS","api_version":"1.0","results":[{"status":"SUCCESS","msg":"Engine execution has succeeded.","returncode":0,"events":[{"msg":"Instance deployment found a runtime-dependent .NET Core application in your source bundle.","timestamp":1633717236,"severity":"INFO"},{"msg":"Instance deployment completed successfully.","timestamp":1633717238,"severity":"INFO"}]}]}
+
+2021/10/08 18:20:38.255993 [INFO] Platform Engine finished execution on command: app-deploy
+
+2021/10/08 18:35:31.844407 [INFO] Starting...
+2021/10/08 18:35:31.844468 [INFO] Starting EBPlatform-PlatformEngine
+2021/10/08 18:35:31.844485 [INFO] reading event message file
+2021/10/08 18:35:31.844609 [INFO] no eb envtier info file found, skip loading env tier info.
+2021/10/08 18:35:31.844684 [INFO] Engine received EB command cfn-hup-exec
+
+2021/10/08 18:35:31.918870 [INFO] Running command /bin/sh -c /opt/aws/bin/cfn-get-metadata -s arn:aws:cloudformation:us-west-1:370397851180:stack/awseb-e-gzc3htvxac-stack/d1ad9590-2858-11ec-9ffc-021f99fc4cd9 -r AWSEBAutoScalingGroup --region us-west-1
+2021/10/08 18:35:32.237100 [INFO] Running command /bin/sh -c /opt/aws/bin/cfn-get-metadata -s arn:aws:cloudformation:us-west-1:370397851180:stack/awseb-e-gzc3htvxac-stack/d1ad9590-2858-11ec-9ffc-021f99fc4cd9 -r AWSEBBeanstalkMetadata --region us-west-1
+2021/10/08 18:35:32.554216 [INFO] checking whether command tail-log is applicable to this instance...
+2021/10/08 18:35:32.554231 [INFO] this command is applicable to the instance, thus instance should execute command
+2021/10/08 18:35:32.554234 [INFO] Engine command: (tail-log)
+
+2021/10/08 18:35:32.554292 [INFO] Executing instruction: GetTailLogs
+2021/10/08 18:35:32.554297 [INFO] Tail Logs...
+2021/10/08 18:35:32.554629 [INFO] Running command /bin/sh -c tail -n 100 /var/log/eb-engine.log
+2021/10/08 18:35:32.556346 [INFO] Running command /bin/sh -c tail -n 100 /var/log/web.stdout.log
+2021/10/08 18:35:32.726411 [INFO] Executing cleanup logic
+2021/10/08 18:35:32.726535 [INFO] CommandService Response: {"status":"SUCCESS","api_version":"1.0","results":[{"status":"SUCCESS","msg":"Engine execution has succeeded.","returncode":0,"events":[{"msg":"Instance deployment completed successfully.","timestamp":1633718132,"severity":"INFO"}]}]}
+
+2021/10/08 18:35:32.726663 [INFO] Platform Engine finished execution on command: tail-log
+
+2021/10/11 13:07:25.805551 [INFO] Starting...
+2021/10/11 13:07:25.805599 [INFO] Starting EBPlatform-PlatformEngine
+2021/10/11 13:07:25.805614 [INFO] reading event message file
+2021/10/11 13:07:25.805759 [INFO] no eb envtier info file found, skip loading env tier info.
+2021/10/11 13:07:25.805821 [INFO] Engine received EB command cfn-hup-exec
+
+2021/10/11 13:07:25.888233 [INFO] Running command /bin/sh -c /opt/aws/bin/cfn-get-metadata -s arn:aws:cloudformation:us-west-1:370397851180:stack/awseb-e-gzc3htvxac-stack/d1ad9590-2858-11ec-9ffc-021f99fc4cd9 -r AWSEBAutoScalingGroup --region us-west-1
+2021/10/11 13:07:26.208100 [INFO] Running command /bin/sh -c /opt/aws/bin/cfn-get-metadata -s arn:aws:cloudformation:us-west-1:370397851180:stack/awseb-e-gzc3htvxac-stack/d1ad9590-2858-11ec-9ffc-021f99fc4cd9 -r AWSEBBeanstalkMetadata --region us-west-1
+2021/10/11 13:07:26.514456 [INFO] checking whether command tail-log is applicable to this instance...
+2021/10/11 13:07:26.514468 [INFO] this command is applicable to the instance, thus instance should execute command
+2021/10/11 13:07:26.514471 [INFO] Engine command: (tail-log)
+
+2021/10/11 13:07:26.514515 [INFO] Executing instruction: GetTailLogs
+2021/10/11 13:07:26.514520 [INFO] Tail Logs...
+2021/10/11 13:07:26.514730 [INFO] Running command /bin/sh -c tail -n 100 /var/log/eb-engine.log
+2021/10/11 13:07:26.516417 [INFO] Running command /bin/sh -c tail -n 100 /var/log/web.stdout.log
+2021/10/11 13:07:26.592273 [INFO] Executing cleanup logic
+2021/10/11 13:07:26.592386 [INFO] CommandService Response: {"status":"SUCCESS","api_version":"1.0","results":[{"status":"SUCCESS","msg":"Engine execution has succeeded.","returncode":0,"events":[{"msg":"Instance deployment completed successfully.","timestamp":1633957646,"severity":"INFO"}]}]}
+
+2021/10/11 13:07:26.592502 [INFO] Platform Engine finished execution on command: tail-log
+
+2021/10/12 05:02:18.663778 [INFO] Starting...
+2021/10/12 05:02:18.663836 [INFO] Starting EBPlatform-PlatformEngine
+2021/10/12 05:02:18.663851 [INFO] reading event message file
+2021/10/12 05:02:18.663966 [INFO] no eb envtier info file found, skip loading env tier info.
+2021/10/12 05:02:18.664033 [INFO] Engine received EB command cfn-hup-exec
+
+2021/10/12 05:02:18.748207 [INFO] Running command /bin/sh -c /opt/aws/bin/cfn-get-metadata -s arn:aws:cloudformation:us-west-1:370397851180:stack/awseb-e-gzc3htvxac-stack/d1ad9590-2858-11ec-9ffc-021f99fc4cd9 -r AWSEBAutoScalingGroup --region us-west-1
+2021/10/12 05:02:19.074497 [INFO] Running command /bin/sh -c /opt/aws/bin/cfn-get-metadata -s arn:aws:cloudformation:us-west-1:370397851180:stack/awseb-e-gzc3htvxac-stack/d1ad9590-2858-11ec-9ffc-021f99fc4cd9 -r AWSEBBeanstalkMetadata --region us-west-1
+2021/10/12 05:02:19.399366 [INFO] checking whether command tail-log is applicable to this instance...
+2021/10/12 05:02:19.399379 [INFO] this command is applicable to the instance, thus instance should execute command
+2021/10/12 05:02:19.399384 [INFO] Engine command: (tail-log)
+
+2021/10/12 05:02:19.399444 [INFO] Executing instruction: GetTailLogs
+2021/10/12 05:02:19.399449 [INFO] Tail Logs...
+2021/10/12 05:02:19.399711 [INFO] Running command /bin/sh -c tail -n 100 /var/log/eb-engine.log
+
+
+----------------------------------------
+/var/log/web.stdout.log
+----------------------------------------
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6450385 System.Net.Http.RequestStart(scheme: https, host: s3issue.s3.us-west-1.amazonaws.com, port: 443, pathAndQuery: /test/40faadab-94c5-471b-aabd-a1606c30c48c, versionMajor: 1, versionMinor: 1, versionPolicy: 0)
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6450385-RequestStart
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6453996 System.Net.NameResolution.ResolutionStart(hostNameOrAddress: s3issue.s3.us-west-1.amazonaws.com)
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6453996-ResolutionStart
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6471477 System.Net.NameResolution.ResolutionStop()
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6471477-ResolutionStop
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6472592 System.Net.Sockets.ConnectStart(address: InterNetworkV6:28:{1,187,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,255,52,219,116,145,0,0,0,0})
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6472592-ConnectStart
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6484300 System.Net.Sockets.ConnectStop()
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6484300-ConnectStop
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6484925 System.Net.Security.HandshakeStart(isServer: False, targetHost: s3issue.s3.us-west-1.amazonaws.com)
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6484925-HandshakeStart
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6808455 System.Net.Security.HandshakeStop(protocol: 3072)
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6808455-HandshakeStop
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6816003 System.Net.Http.ConnectionEstablished(versionMajor: 1, versionMinor: 1)
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6816003-ConnectionEstablished
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6822405 System.Net.Http.RequestHeadersStart()
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6822405-RequestHeadersStart
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6827701 System.Net.Http.RequestHeadersStop()
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.6827701-RequestHeadersStop
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.7568110 System.Net.Http.ResponseHeadersStart()
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.7568110-ResponseHeadersStart
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.7568939 System.Net.Http.ResponseHeadersStop()
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.7568939-ResponseHeadersStop
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.7569368 System.Net.Http.RequestStop()
+Oct 11 13:02:33 ip-172-31-28-36 web: 13:02:33.7569368-RequestStop
+Oct 11 13:02:33 ip-172-31-28-36 web: Total Time in MS - 113
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3256668 System.Net.Http.RequestStart(scheme: https, host: s3issue.s3.us-west-1.amazonaws.com, port: 443, pathAndQuery: /test/40faadab-94c5-471b-aabd-a1606c30c48c, versionMajor: 1, versionMinor: 1, versionPolicy: 0)
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3256668-RequestStart
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3259780 System.Net.NameResolution.ResolutionStart(hostNameOrAddress: s3issue.s3.us-west-1.amazonaws.com)
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3259780-ResolutionStart
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3269771 System.Net.NameResolution.ResolutionStop()
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3269771-ResolutionStop
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3270459 System.Net.Sockets.ConnectStart(address: InterNetworkV6:28:{1,187,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,255,52,219,113,41,0,0,0,0})
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3270459-ConnectStart
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3280631 System.Net.Sockets.ConnectStop()
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3280631-ConnectStop
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3281383 System.Net.Security.HandshakeStart(isServer: False, targetHost: s3issue.s3.us-west-1.amazonaws.com)
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3281383-HandshakeStart
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3348571 System.Net.Security.HandshakeStop(protocol: 3072)
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3348571-HandshakeStop
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3349389 System.Net.Http.ConnectionEstablished(versionMajor: 1, versionMinor: 1)
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3349389-ConnectionEstablished
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3349679 System.Net.Http.RequestHeadersStart()
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3349679-RequestHeadersStart
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3349948 System.Net.Http.RequestHeadersStop()
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.3349948-RequestHeadersStop
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.4251662 System.Net.Http.ResponseHeadersStart()
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.4251662-ResponseHeadersStart
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.4262415 System.Net.Http.ResponseHeadersStop()
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.4262415-ResponseHeadersStop
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.4267947 System.Net.Http.RequestStop()
+Oct 11 13:05:56 ip-172-31-28-36 web: 13:05:56.4267947-RequestStop
+Oct 11 13:05:56 ip-172-31-28-36 web: Total Time in MS - 102
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5496528 System.Net.Http.RequestStart(scheme: https, host: s3issue.s3.us-west-1.amazonaws.com, port: 443, pathAndQuery: /test/40faadab-94c5-471b-aabd-a1606c30c48c, versionMajor: 1, versionMinor: 1, versionPolicy: 0)
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5496528-RequestStart
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5505488 System.Net.NameResolution.ResolutionStart(hostNameOrAddress: s3issue.s3.us-west-1.amazonaws.com)
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5505488-ResolutionStart
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5515963 System.Net.NameResolution.ResolutionStop()
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5515963-ResolutionStop
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5516652 System.Net.Sockets.ConnectStart(address: InterNetworkV6:28:{1,187,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,255,52,219,113,122,0,0,0,0})
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5516652-ConnectStart
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5527789 System.Net.Sockets.ConnectStop()
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5527789-ConnectStop
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5528496 System.Net.Security.HandshakeStart(isServer: False, targetHost: s3issue.s3.us-west-1.amazonaws.com)
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5528496-HandshakeStart
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5589285 System.Net.Security.HandshakeStop(protocol: 3072)
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5589285-HandshakeStop
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5590075 System.Net.Http.ConnectionEstablished(versionMajor: 1, versionMinor: 1)
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5590075-ConnectionEstablished
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5590372 System.Net.Http.RequestHeadersStart()
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5590372-RequestHeadersStart
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5590654 System.Net.Http.RequestHeadersStop()
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.5590654-RequestHeadersStop
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.6020592 System.Net.Http.ResponseHeadersStart()
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.6020592-ResponseHeadersStart
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.6021492 System.Net.Http.ResponseHeadersStop()
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.6021492-ResponseHeadersStop
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.6021874 System.Net.Http.RequestStop()
+Oct 11 13:06:05 ip-172-31-28-36 web: 13:06:05.6021874-RequestStop
+Oct 11 13:06:05 ip-172-31-28-36 web: Total Time in MS - 53
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9275098 System.Net.Http.RequestStart(scheme: https, host: s3issue.s3.us-west-1.amazonaws.com, port: 443, pathAndQuery: /test/40faadab-94c5-471b-aabd-a1606c30c48c, versionMajor: 1, versionMinor: 1, versionPolicy: 0)
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9275098-RequestStart
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9285362 System.Net.NameResolution.ResolutionStart(hostNameOrAddress: s3issue.s3.us-west-1.amazonaws.com)
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9285362-ResolutionStart
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9453615 System.Net.NameResolution.ResolutionStop()
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9453615-ResolutionStop
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9455434 System.Net.Sockets.ConnectStart(address: InterNetworkV6:28:{1,187,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,255,52,219,113,1,0,0,0,0})
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9455434-ConnectStart
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9468563 System.Net.Sockets.ConnectStop()
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9468563-ConnectStop
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9472302 System.Net.Security.HandshakeStart(isServer: False, targetHost: s3issue.s3.us-west-1.amazonaws.com)
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9472302-HandshakeStart
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9800761 System.Net.Security.HandshakeStop(protocol: 3072)
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9800761-HandshakeStop
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9805976 System.Net.Http.ConnectionEstablished(versionMajor: 1, versionMinor: 1)
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9805976-ConnectionEstablished
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9809811 System.Net.Http.RequestHeadersStart()
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9809811-RequestHeadersStart
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9813483 System.Net.Http.RequestHeadersStop()
+Oct 12 05:01:51 ip-172-31-28-36 web: 05:01:51.9813483-RequestHeadersStop
+Oct 12 05:01:52 ip-172-31-28-36 web: 05:01:52.0504995 System.Net.Http.ResponseHeadersStart()
+Oct 12 05:01:52 ip-172-31-28-36 web: 05:01:52.0504995-ResponseHeadersStart
+Oct 12 05:01:52 ip-172-31-28-36 web: 05:01:52.0505836 System.Net.Http.ResponseHeadersStop()
+Oct 12 05:01:52 ip-172-31-28-36 web: 05:01:52.0505836-ResponseHeadersStop
+Oct 12 05:01:52 ip-172-31-28-36 web: 05:01:52.0506212 System.Net.Http.RequestStop()
+Oct 12 05:01:52 ip-172-31-28-36 web: 05:01:52.0506212-RequestStop
+Oct 12 05:01:52 ip-172-31-28-36 web: Total Time in MS - 123
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3890876 System.Net.Http.RequestStart(scheme: https, host: s3issue.s3.us-west-1.amazonaws.com, port: 443, pathAndQuery: /test/40faadab-94c5-471b-aabd-a1606c30c48c, versionMajor: 1, versionMinor: 1, versionPolicy: 0)
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3890876-RequestStart
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3893716 System.Net.NameResolution.ResolutionStart(hostNameOrAddress: s3issue.s3.us-west-1.amazonaws.com)
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3893716-ResolutionStart
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3898965 System.Net.NameResolution.ResolutionStop()
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3898965-ResolutionStop
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3899489 System.Net.Sockets.ConnectStart(address: InterNetworkV6:28:{1,187,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,255,52,219,113,1,0,0,0,0})
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3899489-ConnectStart
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3910576 System.Net.Sockets.ConnectStop()
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3910576-ConnectStop
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3911015 System.Net.Security.HandshakeStart(isServer: False, targetHost: s3issue.s3.us-west-1.amazonaws.com)
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3911015-HandshakeStart
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3980165 System.Net.Security.HandshakeStop(protocol: 3072)
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3980165-HandshakeStop
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3980694 System.Net.Http.ConnectionEstablished(versionMajor: 1, versionMinor: 1)
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3980694-ConnectionEstablished
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3980978 System.Net.Http.RequestHeadersStart()
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3980978-RequestHeadersStart
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3981273 System.Net.Http.RequestHeadersStop()
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.3981273-RequestHeadersStop
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.4375885 System.Net.Http.ResponseHeadersStart()
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.4375885-ResponseHeadersStart
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.4376634 System.Net.Http.ResponseHeadersStop()
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.4376634-ResponseHeadersStop
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.4376996 System.Net.Http.RequestStop()
+Oct 12 05:01:53 ip-172-31-28-36 web: 05:01:53.4376996-RequestStop
+Oct 12 05:01:53 ip-172-31-28-36 web: Total Time in MS - 49
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.1932769 System.Net.Http.RequestStart(scheme: https, host: s3issue.s3.us-west-1.amazonaws.com, port: 443, pathAndQuery: /test/40faadab-94c5-471b-aabd-a1606c30c48c, versionMajor: 1, versionMinor: 1, versionPolicy: 0)
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.1932769-RequestStart
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.1939891 System.Net.Http.RequestHeadersStart()
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.1939891-RequestHeadersStart
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.1944725 System.Net.Http.RequestHeadersStop()
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.1944725-RequestHeadersStop
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.2157731 System.Net.Http.ResponseHeadersStart()
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.2157731-ResponseHeadersStart
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.2158642 System.Net.Http.ResponseHeadersStop()
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.2158642-ResponseHeadersStop
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.2159116 System.Net.Http.RequestStop()
+Oct 12 05:01:57 ip-172-31-28-36 web: 05:01:57.2159116-RequestStop
+Oct 12 05:01:57 ip-172-31-28-36 web: Total Time in MS - 23
+
+
