@@ -14,7 +14,7 @@ We created application which will retrieve S3 file parallelly from S3 bucket. Wh
 
 Please check image/logs for more information.
 
-## HttpClinet VS S3 Logs
+## HttpClient VS S3 Logs
 
 We also check with S3 logs and found that it send response in 20ms to 80ms but in actual scenario it take time. 
 
