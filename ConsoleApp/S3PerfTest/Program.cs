@@ -1,10 +1,17 @@
 ﻿using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
+using Azure.Storage.Blobs;
 using StackExchange.Profiling;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,9 +20,8 @@ namespace S3PerfTest
 {
     class Program
     {
+        private static int Index = 1;
         private static Random random = new Random();
-        private static readonly AmazonS3Client s3Client = new AmazonS3Client(AWSConfig.Credentials, RegionEndpoint.GetBySystemName(AWSConfig.Region));
-        private static HttpClient _httpClient = new HttpClient();
 
         private static readonly string objectAId = "ce420020-bb6e-41be-82df-329e1c7b8b2f";
         private static readonly string objectBId = "76dec12e-219a-4415-88b3-b1dee375a27d";
@@ -23,15 +29,38 @@ namespace S3PerfTest
         private static readonly string objectDId = "f5dff99a-6353-11ec-90d6-0242ac120003";
         private static readonly string objectEId = "0cf3d570-6354-11ec-90d6-0242ac120003";
 
-        private static List<TimeDetail> sdkTimes = new List<TimeDetail>();
-        private static List<TimeDetail> httpClientTimes = new List<TimeDetail>();
+        private static string objectAURL;
+        private static string objectBURL;
+        private static string objectCURL;
+        private static string objectDURL;
+        private static string objectEURL;
 
-        static void Main(string[] args)
+        private static int Iteration = 1;
+
+        static async Task Main(string[] args)
         {
-            int delay = 3;
+            // NOTE: Uncomment this to run PUT related tests
+            //var numDocs = int.Parse(args[0]);
+
+            //if (args[1] == "aws")
+            //{
+            //    await UploadS3Async(numDocs);
+            //}
+            //else if (args[1] == "azure")
+            //{
+            //    await UploadAzureBlobs(numDocs);
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Args did not match");
+            //}
+
+            //return;
+
+            int delay = 0;
             if (args.Length == 0)
             {
-                Console.WriteLine("Using default delay of 3 seconds");
+                Console.WriteLine($"Using default delay of {delay} seconds");
             }
             else
             {
@@ -46,96 +75,162 @@ namespace S3PerfTest
                 cts.Cancel();
             };
 
-            ConfigureLog4Net();
-            RunS3TestsAsync(cts.Token, delay).GetAwaiter().GetResult();
+            Console.WriteLine("Enter Choice");
+            Console.WriteLine("1. Run with AWS S3 SDK");
+            Console.WriteLine("2. Run with REST API");
+            Console.WriteLine("3. Run against Azure Blob");
+            int choice = int.Parse(Console.ReadLine());
+            switch (choice)
+            {
+                case 1:
+                    await RunS3PerfTestAsync(cts.Token, delay);
+                    break;
+
+                case 2:
+                    await RunS3WithHttpClientAsync(cts.Token, delay);
+                    break;
+
+                case 3:
+                    await TestAzureBlobStorageAsync(cts.Token, delay);
+                    break;
+
+                default:
+                    throw new InvalidDataException("Choice");
+            }
+
             Console.WriteLine("Press ENTER to terminate the application");
             Console.ReadLine();
         }
 
-        private static async Task RunS3TestsAsync(CancellationToken token, int delay = 0)
+        private static async Task RunS3PerfTestAsync(CancellationToken cancellationToken, int delay)
         {
-            Console.WriteLine("Enter choice:");
-            Console.WriteLine("1. Run With SDK");
-            Console.WriteLine("2. Run With REST API");
+            var amazonS3Config = new AmazonS3Config()
+            {
+                RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(AWSConfig.Region),
+                HttpClientFactory = new CustomHttpClientFactory()
+            };
 
-            int choice = int.Parse(Console.ReadLine());
-            if (choice == 1)
+            var s3Client = new AmazonS3Client(AWSConfig.AccessKey, AWSConfig.Secret, amazonS3Config);
+
+            var path = Path.Combine("Results", $"{DateTime.UtcNow.ToString("yyyy-MM-dd-THH-mm-ss")}.csv");
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            await File.AppendAllLinesAsync(path, new[] { Log.Header });
+
+            while (!cancellationToken.IsCancellationRequested)
             {
-                Console.WriteLine("Running test using AWS SDK for S3");
-                await RunS3TestAsync(token, delay);
-            }
-            else if (choice == 2)
-            {
-                Console.WriteLine("Running test using AWS REST API");
-                await RunS3WithHttpClientAsync(token, GetPresignedUrl(), delay);
-            }
-            else
-            {
-                Console.WriteLine("Invalid choice. Exiting");
+                var log = new Log();
+                using (var listener = new ConsoleEventListener(log))
+                {
+                    log.SdkRequestStart = DateTime.UtcNow;
+
+                    var obj = await s3Client.GetObjectAsync(new GetObjectRequest
+                    {
+                        BucketName = AWSConfig.BucketName,
+                        Key = $"objects/{GetDocId()}"
+                    });
+
+                    log.SdkRequestEnd = DateTime.UtcNow;
+                    log.ResponseReadStart = DateTime.UtcNow;
+
+                    using (var reader = new StreamReader(obj.ResponseStream))
+                    {
+                        var time = DateTime.UtcNow;
+                        var result = reader.ReadToEnd();
+                        var elapsed = DateTime.UtcNow - time;
+                    }
+                    log.ResponseReadEnd = DateTime.UtcNow;
+                    //logs.Add(log);
+                }
+
+                await File.AppendAllLinesAsync(path, new[] { log.ToString() });
+
+                await Task.Delay(delay * 1000);
             }
         }
 
         private static async Task RunS3WithHttpClientAsync(
-            CancellationToken token, string presignedUrl, int delay = 0)
+            CancellationToken token, int delay = 0)
         {
+            var amazonS3Config = new AmazonS3Config()
+            {
+                RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(AWSConfig.Region),
+                HttpClientFactory = new CustomHttpClientFactory()
+            };
+
+            var s3Client = new AmazonS3Client(AWSConfig.AccessKey, AWSConfig.Secret, amazonS3Config);
+
+            objectAURL = GetPresignedUrl(s3Client, objectAId);
+            objectBURL = GetPresignedUrl(s3Client, objectBId);
+            objectCURL = GetPresignedUrl(s3Client, objectCId);
+            objectDURL = GetPresignedUrl(s3Client, objectEId);
+            objectEURL = GetPresignedUrl(s3Client, objectEId);
+
+            var path = Path.Combine("RestAPIResults", $"{DateTime.UtcNow.ToString("yyyy-MM-dd-THH-mm-ss")}.csv");
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            await File.AppendAllLinesAsync(path, new[] { Log.Header });
+
+            var httpClient = new HttpClient();
+
             while (!token.IsCancellationRequested)
             {
-                Console.WriteLine($"************************* Test Start **************************");
-                presignedUrl = GetPresignedUrl();
-                var profiler = MiniProfiler.StartNew($"S3-REST-API-Read-Stats");
-                var timing = profiler.Step("Read-Object");
-                var response = await _httpClient.GetAsync(presignedUrl);
-                var content = await response.Content.ReadAsStringAsync();
-                timing.Stop();
-
-                profiler.Stop();
-
-                response.EnsureSuccessStatusCode();
-
-                if (timing.DurationMilliseconds > 50)
+                var log = new Log();
+                using (var listener = new ConsoleEventListener(log))
                 {
-                    httpClientTimes.Add(new TimeDetail
-                    {
-                        RequestId = 0,
-                        LatencyMs = timing.DurationMilliseconds.ToString(),
-                        Timestamp = DateTime.Now
-                    });
+                    var presignedUrl = GetPresignedUrlByDocId();
+
+                    log.SdkRequestStart = DateTime.UtcNow;
+                    var response = await httpClient.GetAsync(presignedUrl);
+                    log.SdkRequestEnd = DateTime.UtcNow;
+
+                    log.ResponseReadStart = DateTime.UtcNow;
+                    var content = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+
+                    log.ResponseReadEnd = DateTime.UtcNow;
                 }
 
-                Console.WriteLine(profiler.RenderPlainText());
-                Console.WriteLine($"************************* Test End **************************\n\n");
+                await File.AppendAllLinesAsync(path, new[] { log.ToString() });
                 await Task.Delay(delay * 1000);
             }
-
-            Console.WriteLine("Printing HTTP Client times");
-            Console.WriteLine(JsonSerializer.Serialize(httpClientTimes));
         }
 
-        private static string GetPresignedUrl()
+        private static string GetPresignedUrl(AmazonS3Client s3Client, string docId)
         {
             var presignedUrl = s3Client.GetPreSignedURL(new GetPreSignedUrlRequest
             {
                 BucketName = "s3-perf-validation",
-                Key = $"objects/{GetDocId()}",
-                Expires = DateTime.UtcNow.AddMinutes(2),
+                Key = $"objects/{docId}",
+                Expires = DateTime.UtcNow.AddHours(2),
                 Verb = HttpVerb.GET,
             });
 
             return presignedUrl;
         }
 
-        private static void ConfigureLog4Net()
+        private static string GetPresignedUrlByDocId()
         {
-            AWSConfigs.LoggingConfig.LogTo = LoggingOptions.Console;
-            AWSConfigs.LoggingConfig.LogMetricsFormat = LogMetricsFormatOption.Standard;
-            AWSConfigs.LoggingConfig.LogMetrics = true;
-            AWSConfigs.LoggingConfig.LogResponsesSizeLimit = 100;
-
-            //XmlConfigurator.Configure(new FileInfo("App.config"));
+            switch (random.Next(1, 6))
+            {
+                case 1:
+                    return objectAURL;
+                case 2:
+                    return objectBURL;
+                case 3:
+                    return objectCURL;
+                case 4:
+                    return objectDURL;
+                case 5:
+                    return objectEURL;
+                default:
+                    return objectAURL;
+            }
         }
 
         private static string GetDocId()
         {
+            var docId = "object" + Iteration;
+            Iteration++;
+            return docId;
             switch (random.Next(1, 6))
             {
                 case 1:
@@ -153,53 +248,118 @@ namespace S3PerfTest
             }
         }
 
-        private static async Task RunS3TestAsync(CancellationToken token, int delay = 0)
+        private static async Task TestAzureBlobStorageAsync(
+            CancellationToken token, int delay = 0)
         {
+            var path = Path.Combine("AzureBlobResults", $"{DateTime.UtcNow.ToString("yyyy-MM-dd-THH-mm-ss")}.csv");
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            await File.AppendAllLinesAsync(path, new[] { Log.Header });
+
             while (!token.IsCancellationRequested)
             {
-                Console.WriteLine($"************************* Test Start **************************");
-                var profiler = MiniProfiler.StartNew($"S3-Read-Client-Stats");
-                var dataProvider = new S3Blob();
-                var docId = GetDocId();
-                var timing = profiler.Step($"Read-Object");
-                await ReadObjectAsync(profiler, dataProvider, docId);
-                timing.Stop();
-                profiler.Stop();
-
-                if (timing.DurationMilliseconds > 50)
+                var log = new Log();
+                string data;
+                using (var listener = new ConsoleEventListener(log))
                 {
-                    sdkTimes.Add(new TimeDetail
+                    log.SdkRequestStart = DateTime.UtcNow;
+                    var docId = GetDocId();
+                    if (Iteration > 101)
                     {
-                        LatencyMs = timing.DurationMilliseconds.ToString(),
-                        Timestamp = DateTime.Now,
-                        RequestId = 0
-                    });
+                        break;
+                    }
+
+                    var blobClient = containerClient.GetBlobClient(docId);
+
+                    var response = await blobClient.DownloadStreamingAsync();
+                    log.SdkRequestEnd = DateTime.UtcNow;
+
+                    log.ResponseReadStart = DateTime.UtcNow;
+                    
+                    using (var reader = new StreamReader(response.Value.Content))
+                    {
+                        data = reader.ReadToEnd();
+                    }
+                    log.ResponseReadEnd = DateTime.UtcNow;
                 }
 
-                Console.WriteLine(profiler.RenderPlainText());
-                Console.WriteLine($"************************* Test End **************************\n\n");
+                Console.WriteLine(data);
+                await File.AppendAllLinesAsync(path, new[] { log.ToString() });
                 await Task.Delay(delay * 1000);
             }
-
-            Console.WriteLine("Printing sdkTimes");
-            Console.WriteLine(JsonSerializer.Serialize(sdkTimes));
         }
 
-        private static async Task ReadObjectAsync(
-            MiniProfiler profiler, IDataProvider dataProvider, string docId = null)
+        private static BlobContainerClient containerClient = new BlobContainerClient(@"[Enter valid connection string here]", "objects");
+
+        private static BlobClient blobA = containerClient.GetBlobClient(objectAId);
+        private static BlobClient blobB = containerClient.GetBlobClient(objectBId);
+        private static BlobClient blobC = containerClient.GetBlobClient(objectCId);
+        private static BlobClient blobD = containerClient.GetBlobClient(objectDId);
+        private static BlobClient blobE = containerClient.GetBlobClient(objectEId);
+
+        private static BlobClient GetBlobClient()
         {
-            var documentResponseModel = await dataProvider.GetObjectAsync(new DocumentRequestModel
+            switch (random.Next(1, 6))
             {
-                Key = docId,
-                Path = "objects"
-            });
+                case 1:
+                    return blobA;
+                case 2:
+                    return blobB;
+                case 3:
+                    return blobC;
+                case 4:
+                    return blobD;
+                case 5:
+                    return blobE;
+                default:
+                    return blobA;
+            }
         }
-    }
 
-    internal class TimeDetail
-    {
-        public int RequestId { get; set; }
-        public string LatencyMs { get; set; }
-        public DateTime Timestamp { get; set; }
+        private static async Task UploadAzureBlobs(int numDocs)
+        {
+            var content = File.ReadAllText(@"Data/objectA.json");
+            for (int i = 1; i <= numDocs; i++)
+            {
+                BlobClient blob = containerClient.GetBlobClient("object" + i);
+                var formattedContent = content.Replace("ToReplaceId", "object" + i);
+                using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(formattedContent)))
+                {                    
+                    Stopwatch stopwatch = Stopwatch.StartNew();
+                    var response = await blob.UploadAsync(ms);
+                    stopwatch.Stop();
+                    Console.WriteLine($"UploadAzureBlobAsync time: {stopwatch.ElapsedMilliseconds}ms");
+                }
+            }
+        }
+
+        private static async Task UploadS3Async(int numDocs)
+        {
+            var amazonS3Config = new AmazonS3Config()
+            {
+                RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(AWSConfig.Region),
+            };
+
+            var s3Client = new AmazonS3Client(AWSConfig.AccessKey, AWSConfig.Secret, amazonS3Config);
+            var content = File.ReadAllText(@"Data/objectA.json");
+
+            for (int i = 1; i <= numDocs; i++)
+            {
+                var formattedContent = content.Replace("ToReplaceId", "object" + i);
+                using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(formattedContent)))
+                {
+                    var putObjectRequest = new PutObjectRequest
+                    {
+                        InputStream = ms,
+                        Key = $"objects/object{i}",
+                        BucketName = "s3-put-perf-test"
+                    };
+
+                    Stopwatch stopwatch = Stopwatch.StartNew();
+                    var response = await s3Client.PutObjectAsync(putObjectRequest);
+                    stopwatch.Stop();
+                    Console.WriteLine($"PutObjectAsync time: {stopwatch.ElapsedMilliseconds}ms");
+                }
+            }
+        }
     }
 }

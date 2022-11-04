@@ -11,7 +11,7 @@ namespace S3PerfTest
     {
         public const string AccessKey = "";
         public const string Secret = "";
-        public const string Region = "us-west-1";
+        public const string Region = "us-west-2";
         public static readonly BasicAWSCredentials Credentials = new BasicAWSCredentials(AccessKey, Secret);
         public const string BucketName = "s3-perf-validation";
     }
